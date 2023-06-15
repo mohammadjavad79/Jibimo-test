@@ -1,0 +1,68 @@
+version: '3.3'
+
+services:
+  php_jibimo_test:
+    container_name: jibimo_test_php
+    build:
+      context: ./php
+    restart: always
+    volumes:
+      - ./backend:/home/app/jibimo_test:Z
+      - ./provision.sh:/home/app/provision.sh
+      - ./startup.sh:/home/app/startup.sh
+      - ./check.sh:/home/app/check.sh
+      - ./supervisor:/etc/supervisor.d
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+      - ./php/php.ini-production:/usr/local/etc/php/php.ini-production
+      - ./php/php.ini-development:/usr/local/etc/php/php.ini-development
+    links:
+      - db_jibimo_test
+    ports:
+      - 127.0.0.1:9000:9000
+#      - 127.0.0.1:6001:6001
+
+  nginx_jibimo_test:
+    container_name: jibimo_test_nginx
+    build:
+      context: ./nginx
+    restart: always
+    volumes:
+      - ./backend:/home/app/jibimo_test
+    links:
+      - php_jibimo_test
+    ports:
+      - 127.0.0.1:8083:80
+  #    - 443:443
+
+  db_jibimo_test:
+    image: mariadb:10.6
+    restart: always
+    container_name: jibimo_test_db
+    volumes:
+      - ./mysqljibimo/data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=JibimoTest
+      - MYSQL_DATABASE=jibimo
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=JibimoTest
+    ports:
+      - 127.0.0.1:3306:3306
+
+  phpmyadmin_jibimo_test:
+    image: phpmyadmin/phpmyadmin
+    container_name: jibimo_test_phpmyadmin
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db_jibimo_test
+      - PMA_PORT=3306
+    ports:
+      - 127.0.0.1:9002:80
+    volumes:
+      - /sessions
+    links:
+      - db_jibimo_test
+
+volumes:
+  pgsqldata:
+  composer-cache:
