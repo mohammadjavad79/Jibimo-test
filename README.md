@@ -11,6 +11,8 @@ To get started, please :
 
 I have also created two seeder classes for the users and banks tables. When creating the tables with migration command, please use the '--seed' option to populate them with data.
 
+Also I put all passwords and data that maybe you needed in .envexample too.
+
 Thank you for considering my application.
 
 Best regards,
